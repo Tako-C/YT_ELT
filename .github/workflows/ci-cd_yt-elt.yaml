@@ -81,7 +81,16 @@ jobs:
                 docker-compose.yaml
         - name: Set up Docker Compose
           if: steps.changed-files-tests.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch'
-          run: docker compose up -d
+          
+          # run: docker compose up -d
+          run: |
+            # 1. สร้างโฟลเดอร์ที่จำเป็นและกำหนดสิทธิ์ให้ Docker เขียนไฟล์ได้
+            mkdir -p ./logs ./plugins ./dags ./include ./tests ./data
+            chmod -R 777 ./logs ./plugins ./dags ./include ./tests ./data
+            
+            # 2. รันระบบขึ้นมา (ตัว init จะทำงานอัตโนมัติ)
+            docker compose up -d
+            
         - name: Run Unit and Integration Tests
           if: steps.changed-files-tests.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch'
           run: docker exec -t airflow-worker sh -c "pytest tests/ -v"
