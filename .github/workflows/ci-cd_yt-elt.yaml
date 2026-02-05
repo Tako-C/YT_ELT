@@ -90,7 +90,17 @@ jobs:
             
             # 2. รันระบบขึ้นมา (ตัว init จะทำงานอัตโนมัติ)
             docker compose up -d
+
+            # เพิ่มบรรทัดนี้เพื่อให้มั่นใจว่า Postgres และ Script init ทำงานเสร็จก่อน
+            echo "Waiting for services to be ready..."
+            sleep 60
             
+        - name: Debug Airflow Init Failure
+          if: failure()
+          run: |
+            docker compose logs airflow-init
+            docker logs postgres
+
         - name: Run Unit and Integration Tests
           if: steps.changed-files-tests.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch'
           run: docker exec -t airflow-worker sh -c "pytest tests/ -v"
