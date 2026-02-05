@@ -95,4 +95,4 @@ with DAG(
     # Define dependencies
     soda_validate_staging >> soda_validate_core
 
-# End of file
+# End of file dags/main.py
